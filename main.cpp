@@ -18,12 +18,11 @@
 
 using namespace std;
 
-const string COMMANDER("/home/spaceconcordia/SpaceConcordia/commander.exe"); //process name for the commander
-const string DISPATCHER("/home/spaceconcordia/SpaceConcordia/dispatcher.exe");
+const string DISPATCHER("/home/CODE/dispatcher.exe");
 const int SLEEP_TIME = 10;
 
 int g_dispatcher_alive = 1;
-int g_commander_alive  = 1;
+int g_talking_to_earth  = 1;
 
 char* string_to_char_ptr(string str, int size) {
     char* result = (char* )malloc(sizeof(char) * size);
@@ -76,13 +75,13 @@ void reset_process(const string process) {
 }
 
 void sig_handler_USR1(int signum) {
-        cout << "reset commander" << endl;
-        g_commander_alive = 0;
+        cout << "reset dispatcher" << endl;
+        g_dispatcher_alive = 0;
 }
 
 void sig_handler_USR2(int signum) {
-        cout << "reset dispatcher" << endl;
-        g_dispatcher_alive = 0;
+        cout << "talking to earth" << endl;
+        g_talking_to_earth = 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -103,13 +102,12 @@ int main() {
         cout.flush();
         sleep(1);
     }       
-        
-    if (g_commander_alive == 1) {
-        reset_process(COMMANDER);
-    } 
-    if (g_dispatcher_alive == 1) {
-        reset_process(DISPATCHER);
-    }      
+          
+    if (g_talking_to_earth == 1) {
+        if (g_dispatcher_alive == 1) {
+            reset_process(DISPATCHER);
+        }      
+    }
     
     return 0;   
 }
