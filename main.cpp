@@ -18,7 +18,7 @@
 
 using namespace std;
 
-const string DISPATCHER("/home/CODE/dispatcher.exe");
+const string DISPATCHER("/home/CODE/space-dispatcher");
 const int SLEEP_TIME = 10;
 
 int g_dispatcher_alive = 1;
@@ -47,6 +47,10 @@ void kill_all_pids(string pids) {
 }
 
 void reset_process(const string process) {    
+    cout << "Watch Puppy: Biting his little cute tail!" << endl;
+    cout << "Watch Puppy: Starting " << process << " .... " << endl;
+    cout.flush();
+    
     string command("pidof ");
     command.append(process);
     
@@ -67,7 +71,7 @@ void reset_process(const string process) {
    
     pid_t pid = fork();
     if (pid < 0) {
-        cout << "oh oh";
+       // cout << "oh oh";
     }
     else if (pid == 0) {        
         execl(process.c_str(), NULL);       
@@ -75,12 +79,12 @@ void reset_process(const string process) {
 }
 
 void sig_handler_USR1(int signum) {
-        cout << "reset dispatcher" << endl;
+        cout << "Watch Puppy: Woof woof delicious dispatcher!" << endl;
         g_dispatcher_alive = 0;
 }
 
 void sig_handler_USR2(int signum) {
-        cout << "talking to earth" << endl;
+        cout << "Earth is talking to me! Don't panic!" << endl;
         g_talking_to_earth = 0;
 }
 
