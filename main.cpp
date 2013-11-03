@@ -18,11 +18,28 @@
 
 using namespace std;
 
-const string DISPATCHER("/home/CODE/space-dispatcher");
+const string DISPATCHER("/home/CODE/space-commander");
 const int SLEEP_TIME = 10;
 
-int g_dispatcher_alive = 1;
+int g_baby_cron_alive   = 1;
 int g_talking_to_earth  = 1;
+
+void write_current_pid() {
+    const int BUFFER_SIZE    = 10;
+    char buffer[BUFFER_SIZE] = {0};
+
+    //Programs that need to signal Watch-Puppy will grab its pid from this file
+    string filename = "/home/pids/watch-puppy.pid";
+    pid_t pid = getpid();
+    FILE* fp  = fopen(filename.c_str(), "w");
+
+    sprintf(buffer, "%d", pid);
+
+    if (fp != NULL) {
+        fwrite(buffer, BUFFER_SIZE, sizeof(char), fp);
+        fclose(fp);
+    }
+}
 
 char* string_to_char_ptr(string str, int size) {
     char* result = (char* )malloc(sizeof(char) * size);
@@ -71,7 +88,7 @@ void reset_process(const string process) {
    
     pid_t pid = fork();
     if (pid < 0) {
-       // cout << "oh oh";
+       cout << "oh oh";
     }
     else if (pid == 0) {        
         execl(process.c_str(), NULL);       
@@ -79,8 +96,8 @@ void reset_process(const string process) {
 }
 
 void sig_handler_USR1(int signum) {
-        cout << "Watch Puppy: Woof woof delicious dispatcher!" << endl;
-        g_dispatcher_alive = 0;
+        cout << "Watch Puppy: Woof woof delicious baby-cron!" << endl;
+        g_baby_cron_alive = 0;
 }
 
 void sig_handler_USR2(int signum) {
@@ -95,23 +112,34 @@ void sig_handler_USR2(int signum) {
 //-----------------------------------------------------------------------------
 
 int main() {
+    write_current_pid();
+
     int sleep_remaining = SLEEP_TIME;
         
     signal(SIGUSR1, sig_handler_USR1);
     signal(SIGUSR2, sig_handler_USR2);            
     
-    while (sleep_remaining > 0) {
-        sleep_remaining -= 1;             
-        cout << sleep_remaining << endl;
-        cout.flush();
-        sleep(1);
-    }       
-          
-    if (g_talking_to_earth == 1) {
-        if (g_dispatcher_alive == 1) {
-            reset_process(DISPATCHER);
-        }      
+    sleep(SLEEP_TIME); //Give time for other prgrams to start
+
+    while (true) {
+        g_baby_cron_alive = 1;
+
+        // Use a loop instead of sleep to wait for puppy before checking for signal.
+        // This is to prevent being awake from sleep and by OS checking too early
+        while (sleep_remaining > 0) {
+            sleep_remaining -= 1;             
+            cout << sleep_remaining << endl;
+            cout.flush();
+            sleep(1);
+        }  
+        
+        if (g_baby_cron_alive == 1) {
+            cout << "No signal from baby";
+            cout.flush();
+        }
+
+        sleep_remaining = SLEEP_TIME;
     }
-    
+                   
     return 0;   
 }

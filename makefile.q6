@@ -1,0 +1,9 @@
+MICROCC=microblaze-unknown-linux-gnu-g++
+CFLAGS=-Wall
+MICROCFLAGS=-mcpu=v8.10.a -mxl-barrel-shift -mxl-multiply-high -mxl-pattern-compare -mno-xl-soft-mul -mno-xl-soft-div -mxl-float-sqrt -mhard-float -mxl-float-convert -ffixed-r31 --sysroot /usr/local/lib/mbgcc/microblaze-unknown-linux-gnu/sys-root -Wall
+DEBUGFLAGS=-ggdb -g -gdwarf-2 -g3 #gdwarf-2 + g3 provides macro info to gdb
+INCPATH=-I./include/ -I../space-lib/inc/
+LIBPATH=-L./lib/ -L../space-lib/lib
+
+buildQ6:
+	$(MICROCC) $(MICROCFLAGS) $(INCPATH) $(LIBPATH) main.cpp -o bin/watch-puppy
