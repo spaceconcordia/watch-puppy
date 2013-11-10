@@ -14,7 +14,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <stdio.h>
-
+#include "shakespeare.h"
 
 using namespace std;
 
@@ -22,10 +22,14 @@ const string BABY_CRON("/home/apps/current/baby-cron/baby-cron");
 const string SPACE_COMMANDER("/home/apps/current/space-commander/space-commander");
 
 const int SLEEP_TIME = 10;
+const int ALIVE      = 0;
+const int DEAD       = 1;
 
 // Track who did not talk to us 
-int g_baby_cron_alive        = 1;
-int g_space_commander_alive  = 1;
+int g_baby_cron_alive        = DEAD;
+int g_space_commander_alive  = DEAD;
+
+FILE* g_fp_log = NULL;
 
 void write_current_pid() {
     const int BUFFER_SIZE    = 10;
@@ -96,13 +100,22 @@ void reset_process(const string process) {
 
 void sig_handler_USR1(int signum) {
         cout << "Watch Puppy: Woof woof delicious baby-cron!" << endl;
-        g_baby_cron_alive = 0;
+        g_baby_cron_alive = ALIVE;
 }
 
 void sig_handler_USR2(int signum) {
         cout << "Earth is talking to me! Don't panic!" << endl;
-        g_space_commander_alive = 0;
+        g_space_commander_alive = ALIVE;
 }
+
+
+void init_log() {
+    string folder = "/home/logs";
+    string filename = get_filename(folder, "Watch-Puppy", ".log");
+    string filepath = folder + filename;
+    g_fp_log = fopen(filepath.c_str(), "a");
+}
+
 
 //-----------------------------------------------------------------------------
 // Note:
@@ -113,6 +126,9 @@ void sig_handler_USR2(int signum) {
 int main() {
     write_current_pid();
 
+    Log(g_fp_log, NOTICE, "Watch-Puppy", "Starting");
+    fflush(g_fp_log);
+
     int sleep_remaining = SLEEP_TIME;
         
     signal(SIGUSR1, sig_handler_USR1);
@@ -121,8 +137,8 @@ int main() {
     sleep(SLEEP_TIME); //Give time for other prgrams to start
 
     while (true) {
-        g_baby_cron_alive       = 1;
-        g_space_commander_alive = 1;
+        g_baby_cron_alive       = DEAD;
+        g_space_commander_alive = DEAD;
 
         // Use a loop instead of sleep to wait for puppy before checking for signal.
         // This is to prevent being awake from sleep and by OS checking too early
@@ -133,16 +149,21 @@ int main() {
             sleep(1);
         }  
         
-        if (g_baby_cron_alive == 1) {
+        if (g_baby_cron_alive == DEAD) {
             reset_process(BABY_CRON);
         }
 
-        if (g_space_commander_alive == 1) {
+        if (g_space_commander_alive == DEAD) {
             reset_process(SPACE_COMMANDER);
         }
 
         sleep_remaining = SLEEP_TIME;
     }
                    
+    if (g_fp_log) {
+        fclose(g_fp_log);
+        g_fp_log = NULL;
+    }
+
     return 0;   
 }
