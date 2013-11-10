@@ -18,11 +18,14 @@
 
 using namespace std;
 
-const string DISPATCHER("/home/CODE/space-commander");
+const string BABY_CRON("/home/apps/current/baby-cron/baby-cron");
+const string SPACE_COMMANDER("/home/apps/current/space-commander/space-commander");
+
 const int SLEEP_TIME = 10;
 
-int g_baby_cron_alive   = 1;
-int g_talking_to_earth  = 1;
+// Track who did not talk to us 
+int g_baby_cron_alive        = 1;
+int g_space_commander_alive  = 1;
 
 void write_current_pid() {
     const int BUFFER_SIZE    = 10;
@@ -64,10 +67,6 @@ void kill_all_pids(string pids) {
 }
 
 void reset_process(const string process) {    
-    cout << "Watch Puppy: Biting his little cute tail!" << endl;
-    cout << "Watch Puppy: Starting " << process << " .... " << endl;
-    cout.flush();
-    
     string command("pidof ");
     command.append(process);
     
@@ -102,7 +101,7 @@ void sig_handler_USR1(int signum) {
 
 void sig_handler_USR2(int signum) {
         cout << "Earth is talking to me! Don't panic!" << endl;
-        g_talking_to_earth = 0;
+        g_space_commander_alive = 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -122,7 +121,8 @@ int main() {
     sleep(SLEEP_TIME); //Give time for other prgrams to start
 
     while (true) {
-        g_baby_cron_alive = 1;
+        g_baby_cron_alive       = 1;
+        g_space_commander_alive = 1;
 
         // Use a loop instead of sleep to wait for puppy before checking for signal.
         // This is to prevent being awake from sleep and by OS checking too early
@@ -134,8 +134,11 @@ int main() {
         }  
         
         if (g_baby_cron_alive == 1) {
-            cout << "No signal from baby";
-            cout.flush();
+            reset_process(BABY_CRON);
+        }
+
+        if (g_space_commander_alive == 1) {
+            reset_process(SPACE_COMMANDER);
         }
 
         sleep_remaining = SLEEP_TIME;
