@@ -126,6 +126,7 @@ void init_log() {
 int main() {
     write_current_pid();
 
+    init_log();
     Log(g_fp_log, NOTICE, "Watch-Puppy", "Starting");
     fflush(g_fp_log);
 
