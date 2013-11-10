@@ -110,7 +110,7 @@ void sig_handler_USR2(int signum) {
 
 
 void init_log() {
-    string folder = "/home/logs";
+    string folder = "/home/logs/";
     string filename = get_filename(folder, "Watch-Puppy", ".log");
     string filepath = folder + filename;
     g_fp_log = fopen(filepath.c_str(), "a");
