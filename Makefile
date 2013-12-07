@@ -128,3 +128,4 @@ include nbproject/Makefile-impl.mk
 include nbproject/Makefile-variables.mk
 
 include makefile.q6
+include makefile.bin

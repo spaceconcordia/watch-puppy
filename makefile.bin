@@ -1,0 +1,8 @@
+CC=g++
+CFLAGS=-Wall
+DEBUGFLAGS=-ggdb -g -gdwarf-2 -g3 #gdwarf-2 + g3 provides macro info to gdb
+INCPATH=-I./include/ -I../space-lib/inc/
+LIBPATH=-L./lib/ -L../space-lib/lib
+
+buildBin:
+	$(CC) $(CFLAGS) $(INCPATH) $(LIBPATH) -DPC main.cpp -o bin/watch-puppy -lshakespeare

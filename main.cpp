@@ -18,10 +18,19 @@
 
 using namespace std;
 
-const string BABY_CRON("/home/apps/current/baby-cron/baby-cron");
-const string SPACE_COMMANDER("/home/apps/current/space-commander/space-commander");
+#ifdef PC
+    const string BABY_CRON("./apps/baby-cron");
+    const string SPACE_COMMANDER("./apps/space-commander");
+    const string PID_FILE("./watch-puppy.pid");
+    const string LOGS_FOLDER("./logs/");
+#else
+    const string BABY_CRON("/home/apps/current/baby-cron/baby-cron");
+    const string SPACE_COMMANDER("/home/apps/current/space-commander/space-commander");
+    const string PID_FILE("/home/pids/watch-puppy.pid");
+    const string LOGS_FOLDER("/home/logs/");
+#endif
 
-const int SLEEP_TIME = 10;
+const int SLEEP_TIME = 60;
 const int ALIVE      = 0;
 const int DEAD       = 1;
 
@@ -36,7 +45,7 @@ void write_current_pid() {
     char buffer[BUFFER_SIZE] = {0};
 
     //Programs that need to signal Watch-Puppy will grab its pid from this file
-    string filename = "/home/pids/watch-puppy.pid";
+    string filename = PID_FILE;
     pid_t pid = getpid();
     FILE* fp  = fopen(filename.c_str(), "w");
 
@@ -86,7 +95,7 @@ void reset_process(const string process) {
         kill_all_pids(pids);                                
     }
     else {
-        //log errorzor
+        Log(g_fp_log, ERROR, "Watch-Puppy", "Couldn't kill pids");
     }        
    
     pid_t pid = fork();
@@ -94,7 +103,11 @@ void reset_process(const string process) {
        cout << "oh oh";
     }
     else if (pid == 0) {        
-        execl(process.c_str(), NULL);       
+        int errno = execl(process.c_str(), (char*)NULL);       
+        if (errno == -1) {
+            Log(g_fp_log, ERROR, "Watch-Puppy", "Couldn't launch: " + process);
+            exit(0);
+        }
     }          
 }
 
@@ -110,9 +123,8 @@ void sig_handler_USR2(int signum) {
 
 
 void init_log() {
-    string folder = "/home/logs/";
-    string filename = get_filename(folder, "Watch-Puppy", ".log");
-    string filepath = folder + filename;
+    string filename = get_filename(LOGS_FOLDER, "Watch-Puppy", ".log");
+    string filepath = LOGS_FOLDER + filename;
     g_fp_log = fopen(filepath.c_str(), "a");
 }
 
@@ -135,8 +147,6 @@ int main() {
     signal(SIGUSR1, sig_handler_USR1);
     signal(SIGUSR2, sig_handler_USR2);            
     
-    sleep(SLEEP_TIME); //Give time for other prgrams to start
-
     while (true) {
         g_baby_cron_alive       = DEAD;
         g_space_commander_alive = DEAD;
