@@ -113,15 +113,41 @@ void reset_process(const string process) {
 
 void sig_handler_USR1(int signum) {
         cout << "Watch Puppy: Woof woof delicious baby-cron!" << endl;
+        cout.flush();
         g_baby_cron_alive = ALIVE;
 }
 
 void sig_handler_USR2(int signum) {
         cout << "Earth is talking to me! Don't panic!" << endl;
+        cout.flush();
         g_space_commander_alive = ALIVE;
 }
 
 
+void signal_hardware_watch_daddy() {
+    FILE* inaSysFile;
+    static char pin_state = 0;
+
+    inaSysFile=fopen("/dev/gpios/consat/3V3_CTL/value","w");
+    if (inaSysFile!=NULL) {
+        fwrite(&pin_state, sizeof(char) * 1, 1, inaSysFile);
+        if (pin_state == 0) {
+            pin_state = 1; 
+        } 
+        else { 
+            pin_state = 0; 
+        }
+
+        cout << "Pin state: " << (pin_state + 30) << endl;
+        cout.flush();
+        fclose(inaSysFile);
+    } else {
+        cout << "Failed" << endl;
+        cout.flush();
+        // TODO: add shakespeare
+    }
+}
+          
 void init_log() {
     string filename = get_filename(LOGS_FOLDER, "Watch-Puppy", ".log");
     string filepath = LOGS_FOLDER + filename;
@@ -158,6 +184,10 @@ int main() {
             cout << sleep_remaining << endl;
             cout.flush();
             sleep(1);
+
+            if (sleep_remaining % 10 == 0) {
+                signal_hardware_watch_daddy();
+            }
         }  
         
         if (g_baby_cron_alive == DEAD) {
