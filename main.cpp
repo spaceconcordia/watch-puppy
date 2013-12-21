@@ -181,8 +181,6 @@ int main() {
         // This is to prevent being awake from sleep and by OS checking too early
         while (sleep_remaining > 0) {
             sleep_remaining -= 1;             
-            cout << sleep_remaining << endl;
-            cout.flush();
             sleep(1);
 
             if (sleep_remaining % 10 == 0) {
