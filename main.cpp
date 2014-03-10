@@ -19,10 +19,12 @@
 using namespace std;
 
 #ifdef PC
-    const string BABY_CRON("./apps/baby-cron");
-    const string SPACE_COMMANDER("./apps/space-commander");
-    const string PID_FILE("./watch-puppy.pid");
-    const string LOGS_FOLDER("./logs/");
+    #undef __FOLDER__
+    #define __FOLDER__ "/home/jamg85/space"
+    const string BABY_CRON(__FOLDER__"/apps/current/baby-cron/baby-cron");
+    const string SPACE_COMMANDER(__FOLDER__"/apps/current/space-commander/space-commander");
+    const string PID_FILE(__FOLDER__"/watch-puppy.pid");
+    const string LOGS_FOLDER(__FOLDER__"/logs/");
 #else
     const string BABY_CRON("/home/apps/current/baby-cron/baby-cron");
     const string SPACE_COMMANDER("/home/apps/current/space-commander/space-commander");
@@ -95,7 +97,7 @@ void reset_process(const string process) {
         kill_all_pids(pids);                                
     }
     else {
-        Log(g_fp_log, ERROR, "Watch-Puppy", "Couldn't kill pids");
+        Shakespeare::log(g_fp_log, Shakespeare::ERROR, "Watch-Puppy", "Couldn't kill pids");
     }        
    
     pid_t pid = fork();
@@ -103,9 +105,9 @@ void reset_process(const string process) {
        cout << "oh oh";
     }
     else if (pid == 0) {        
-        int errno = execl(process.c_str(), (char*)NULL);       
+        int errno = execl(process.c_str(), process.c_str(), (char*)NULL);       
         if (errno == -1) {
-            Log(g_fp_log, ERROR, "Watch-Puppy", "Couldn't launch: " + process);
+            Shakespeare::log(g_fp_log, Shakespeare::ERROR, "Watch-Puppy", "Couldn't launch: " + process);
             exit(0);
         }
     }          
@@ -149,9 +151,8 @@ void signal_hardware_watch_daddy() {
 }
           
 void init_log() {
-    string filename = get_filename(LOGS_FOLDER, "Watch-Puppy", ".log");
-    string filepath = LOGS_FOLDER + filename;
-    g_fp_log = fopen(filepath.c_str(), "a");
+    string filename = Shakespeare::get_filename(LOGS_FOLDER, "Watch-Puppy", ".log");
+    g_fp_log = fopen(filename.c_str(), "a");
 }
 
 
@@ -165,7 +166,7 @@ int main() {
     write_current_pid();
 
     init_log();
-    Log(g_fp_log, NOTICE, "Watch-Puppy", "Starting");
+    log(g_fp_log, Shakespeare::NOTICE, "Watch-Puppy", "Starting");
     fflush(g_fp_log);
 
     int sleep_remaining = SLEEP_TIME;
