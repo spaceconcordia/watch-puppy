@@ -18,19 +18,10 @@
 
 using namespace std;
 
-#ifdef PC
-    #undef __FOLDER__
-    #define __FOLDER__ "/home/jamg85/space"
-    const string BABY_CRON(__FOLDER__"/apps/current/baby-cron/baby-cron");
-    const string SPACE_COMMANDER(__FOLDER__"/apps/current/space-commander/space-commander");
-    const string PID_FILE(__FOLDER__"/watch-puppy.pid");
-    const string LOGS_FOLDER(__FOLDER__"/logs/");
-#else
-    const string BABY_CRON("/home/apps/current/baby-cron/baby-cron");
-    const string SPACE_COMMANDER("/home/apps/current/space-commander/space-commander");
-    const string PID_FILE("/home/pids/watch-puppy.pid");
-    const string LOGS_FOLDER("/home/logs/");
-#endif
+const string BABY_CRON("/home/apps/current/baby-cron/baby-cron");
+const string SPACE_COMMANDER("/home/apps/current/space-commander/space-commander");
+const string PID_FILE("/home/pids/watch-puppy.pid");
+const string LOGS_FOLDER("/home/logs/");
 
 const int SLEEP_TIME = 60;
 const int ALIVE      = 0;
