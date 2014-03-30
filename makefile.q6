@@ -6,4 +6,4 @@ INCPATH=-I./inc/
 LIBPATH=-L./lib/
 
 buildQ6:
-	$(MICROCC) $(MICROCFLAGS) $(INCPATH) $(LIBPATH) main.cpp -o bin/watch-puppy -lshakespeare-mbcc
+	$(MICROCC) $(MICROCFLAGS) $(INCPATH) $(LIBPATH) $(DEBUGFLAGS) main.cpp -o bin/watch-puppy -lshakespeare-mbcc

@@ -20,17 +20,10 @@
 
 using namespace std;
 
-#ifdef PC
-    const string BABY_CRON("./apps/baby-cron");
-    const string SPACE_COMMANDER("./apps/space-commander");
-    const string PID_FILE("./watch-puppy.pid");
-    const string LOGS_FOLDER("./logs/");
-#else
-    const string BABY_CRON("/home/apps/current/baby-cron/baby-cron");
-    const string SPACE_COMMANDER("/home/apps/current/space-commander/space-commander");
-    const string PID_FILE("/home/pids/watch-puppy.pid");
-    const string LOGS_FOLDER("/home/logs/");
-#endif
+const string BABY_CRON("/home/apps/current/baby-cron/baby-cron");
+const string SPACE_COMMANDER("/home/apps/current/space-commander/space-commander");
+const string PID_FILE("/home/pids/watch-puppy.pid");
+const string LOGS_FOLDER("/home/logs/");
 
 const int SLEEP_TIME = 60;
 const int ALIVE      = 0;
@@ -106,7 +99,7 @@ void reset_process(const string process) {
        Shakespeare::log(g_fp_log, Shakespeare::ERROR, PROCESS, "pid < 0: " + process);
     }
     else if (pid == 0) {        
-        int errno = execl(process.c_str(), (char*)NULL);       
+        int errno = execl(process.c_str(), process.c_str(), (char*)NULL);       
         if (errno == -1) {
             Shakespeare::log(g_fp_log, Shakespeare::ERROR, PROCESS, "Couldn't launch: " + process);
             exit(0);

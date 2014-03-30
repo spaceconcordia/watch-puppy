@@ -5,4 +5,4 @@ INCPATH=-I./inc/
 LIBPATH=-L./lib/ 
 
 buildBin:
-	$(CC) $(CFLAGS) $(INCPATH) $(LIBPATH) -DPC main.cpp -o bin/watch-puppy -lshakespeare
+	$(CC) $(CFLAGS) $(INCPATH) $(LIBPATH) $(DEBUGFLAGS) main.cpp -o bin/watch-puppy -lshakespeare
