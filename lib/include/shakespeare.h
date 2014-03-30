@@ -18,7 +18,7 @@ namespace Shakespeare
 
     void log(FILE* lf, Priority ePriority, string process, string msg);
 
-    int file_space_remaining(char *filepath, size_t write_size);
+    int file_size_limit_reached(char *filepath, size_t write_size);
 
     bool directory_exists(const char* directory);
     string ensure_filepath(string folder);
