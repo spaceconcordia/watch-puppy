@@ -16,6 +16,8 @@
 #include <stdio.h>
 #include "shakespeare.h"
 
+#define PROCESS "Watch-Puppy"
+
 using namespace std;
 
 const string BABY_CRON("/home/apps/current/baby-cron/baby-cron");
@@ -88,62 +90,58 @@ void reset_process(const string process) {
         kill_all_pids(pids);                                
     }
     else {
-        Shakespeare::log(g_fp_log, Shakespeare::ERROR, "Watch-Puppy", "Couldn't kill pids");
+        Shakespeare::log(g_fp_log, Shakespeare::ERROR, PROCESS, "Couldn't kill pids");
     }        
    
     pid_t pid = fork();
     if (pid < 0) {
-       cout << "oh oh";
+       //cout << "oh oh";
+       Shakespeare::log(g_fp_log, Shakespeare::ERROR, PROCESS, "pid < 0: " + process);
     }
     else if (pid == 0) {        
         int errno = execl(process.c_str(), process.c_str(), (char*)NULL);       
         if (errno == -1) {
-            Shakespeare::log(g_fp_log, Shakespeare::ERROR, "Watch-Puppy", "Couldn't launch: " + process);
+            Shakespeare::log(g_fp_log, Shakespeare::ERROR, PROCESS, "Couldn't launch: " + process);
             exit(0);
         }
     }          
 }
 
 void sig_handler_USR1(int signum) {
-        cout << "Watch Puppy: Woof woof delicious baby-cron!" << endl;
-        cout.flush();
         g_baby_cron_alive = ALIVE;
 }
 
 void sig_handler_USR2(int signum) {
-        cout << "Earth is talking to me! Don't panic!" << endl;
-        cout.flush();
         g_space_commander_alive = ALIVE;
 }
 
 
 void signal_hardware_watch_daddy() {
     FILE* inaSysFile;
-    static char pin_state = 0;
+    static char pin_state = '0';
 
     inaSysFile=fopen("/dev/gpios/consat/3V3_CTL/value","w");
     if (inaSysFile!=NULL) {
         fwrite(&pin_state, sizeof(char) * 1, 1, inaSysFile);
-        if (pin_state == 0) {
-            pin_state = 1; 
+        if (pin_state == '0') {
+            pin_state = '1'; 
         } 
         else { 
-            pin_state = 0; 
+            pin_state = '0'; 
         }
-
-        cout << "Pin state: " << (pin_state + 30) << endl;
-        cout.flush();
+        Shakespeare::log(g_fp_log,Shakespeare::NOTICE,PROCESS,"Pin state: " + pin_state);
+        //cout << "Pin state: " << pin_state << endl;
+        //cout.flush();
         fclose(inaSysFile);
     } else {
-        cout << "Failed" << endl;
-        cout.flush();
-        // TODO: add shakespeare
+        Shakespeare::log(g_fp_log,Shakespeare::ERROR,PROCESS,"Failed: " + pin_state);
+        //cout << "Failed" << endl;
+        //cout.flush();
     }
 }
           
 void init_log() {
-    string filename = Shakespeare::get_filename(LOGS_FOLDER, "Watch-Puppy", ".log");
-    g_fp_log = fopen(filename.c_str(), "a");
+    g_fp_log = Shakespeare::open_log(LOGS_FOLDER,PROCESS);
 }
 
 
@@ -157,7 +155,7 @@ int main() {
     write_current_pid();
 
     init_log();
-    log(g_fp_log, Shakespeare::NOTICE, "Watch-Puppy", "Starting");
+    Shakespeare::log(g_fp_log, Shakespeare::NOTICE, PROCESS, "Starting");
     fflush(g_fp_log);
 
     int sleep_remaining = SLEEP_TIME;
@@ -173,6 +171,8 @@ int main() {
         // This is to prevent being awake from sleep and by OS checking too early
         while (sleep_remaining > 0) {
             sleep_remaining -= 1;             
+            //cout << sleep_remaining << endl;
+            //cout.flush();
             sleep(1);
 
             if (sleep_remaining % 10 == 0) {
