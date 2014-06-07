@@ -14,16 +14,18 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <stdio.h>
+
+#include "SpaceDecl.h"
 #include "shakespeare.h"
 
 #define PROCESS "Watch-Puppy"
 
 using namespace std;
 
-const string BABY_CRON("/home/apps/current/baby-cron/baby-cron");
-const string SPACE_COMMANDER("/home/apps/current/space-commander/space-commander");
-const string PID_FILE("/home/pids/watch-puppy.pid");
-const string LOGS_FOLDER("/home/logs/");
+const string BABY_CRON(CS1_BABY_CRON_BIN);
+const string SPACE_COMMANDER(CS1_COMMANDER_BIN);
+const string PID_FILE(CS1_WATCH_PUPPY_PID);
+const string LOGS_FOLDER(CS1_LOGS);
 
 const int SLEEP_TIME = 60;
 const int ALIVE      = 0;

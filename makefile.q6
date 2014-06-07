@@ -1,9 +1,18 @@
 MICROCC=microblazeel-xilinx-linux-gnu-g++
+
 CFLAGS=-Wall
+
 MICROCFLAGS=-mcpu=v8.40.b -mxl-barrel-shift -mxl-multiply-high -mxl-pattern-compare -mno-xl-soft-mul -mno-xl-soft-div -mxl-float-sqrt -mhard-float -mxl-float-convert -mlittle-endian -Wall
 DEBUGFLAGS=-ggdb -g -gdwarf-2 -g3 #gdwarf-2 + g3 provides macro info to gdb
-INCPATH=-I./inc/ -I../space-lib/shakespeare/inc/
-LIBPATH=-L./lib/ -L../space-lib/shakespeare/lib/
+
+#
+# Paths
+#
+SPACE_LIB = ../space-lib
+
+INCPATH=-I./inc/ -I$(SPACE_LIB)/shakespeare/inc/ -I$(SPACE_LIB)/include
+LIBPATH=-L./lib/ -L$(SPACE_LIB)/shakespeare/lib/
+LIBS= -lshakespeare
 
 buildQ6:
 	$(MICROCC) $(MICROCFLAGS) $(INCPATH) $(LIBPATH) $(DEBUGFLAGS) main.cpp -o bin/watch-puppy -lshakespeare-mbcc
